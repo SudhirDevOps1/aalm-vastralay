@@ -46,7 +46,7 @@ jobs:
 
       - name: Run Release Please
         id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
         with:
           # Google's release-please config file use karo
           config-file: release-please-config.json
