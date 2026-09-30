@@ -10,6 +10,13 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.11](https://github.com/SudhirDevOps1/aalm-vastralay/compare/v0.1.10...v0.1.11) (2026-09-30)
+
+
+### ✨ Features
+
+* **analytics:** wire route tracker and typesense search adapter ([56c6f78](https://github.com/SudhirDevOps1/aalm-vastralay/commit/56c6f781b53c970822cd7889fe0a023ced56bab1))
+
 ## [0.1.10](https://github.com/SudhirDevOps1/aalm-vastralay/compare/v0.1.9...v0.1.10) (2026-09-29)
 
 
