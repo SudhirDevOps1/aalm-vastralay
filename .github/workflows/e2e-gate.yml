@@ -102,7 +102,7 @@ jobs:
           NODE_ENV: production
 
       - name: 📊 Upload Playwright Report (Screenshots + Video + Trace)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()   # Fail hone pe bhi artifacts milein
         with:
           name: playwright-report-pr-${{ github.event.pull_request.number }}
@@ -161,7 +161,7 @@ jobs:
           fail_action: false   # Report milti hai, PR block nahi hoga (advisory mode)
 
       - name: 📄 Upload ZAP HTML Security Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: zap-report-pr-${{ github.event.pull_request.number }}
