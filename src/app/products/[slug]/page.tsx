@@ -229,18 +229,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <RatingPill value={product.rating} count={product.totalReviews} />
           </div>
 
-          <div className="mt-4 flex flex-wrap items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-maroon-900 dark:text-rose-300">{formatINR(product.price)}</span>
-            {mrp > product.price && (
-              <>
-                <span className="text-lg text-slate-400 dark:text-stone-500 line-through">{formatINR(mrp)}</span>
-                <span className="rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 text-sm font-bold text-emerald-700 dark:text-emerald-300">{discount}% off</span>
-              </>
-            )}
-          </div>
-          <p className="mt-1 text-xs text-slate-600 dark:text-stone-400 font-medium">Inclusive of all taxes · {product.price >= freeShippingThreshold() ? "Free delivery" : `${formatINR(49)} delivery, free above ${formatINR(freeShippingThreshold())}`}</p>
-
-          <div id="purchase-panel" className="mt-6">
+          <div id="purchase-panel" className="mt-4">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-stone-300">Select Size & Variant</span>
               <SizeGuideModal categoryName={category?.name} />
@@ -248,9 +237,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <PurchasePanel
               productId={product.id}
               price={product.price}
+              mrp={mrp}
               stock={product.stock}
               variants={variants.map((v) => ({ id: v.id, size: v.size, color: v.color, stock: v.stock, priceAdjustment: v.priceAdjustment }))}
               initialWishlisted={wish.length > 0}
+              freeShippingAbove={freeShippingThreshold()}
             />
           </div>
 

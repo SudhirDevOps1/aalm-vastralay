@@ -77,8 +77,22 @@ export const auth = betterAuth({
     "aalm-vastralay-auth-secret-key-32-characters-minimum-length",
   baseURL:
     process.env.BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
     "http://localhost:3000",
+  trustedOrigins: Array.from(
+    new Set(
+      [
+        "http://localhost:3000",
+        "https://aalm-vastralay.vercel.app",
+        process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, ""),
+        process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, ""),
+        process.env.BETTER_AUTH_URL?.replace(/\/$/, ""),
+        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL.replace(/\/$/, "")}` : undefined,
+      ].filter(Boolean) as string[]
+    )
+  ),
 
   // 1. Email Verification (ईमेल सत्यापन)
   emailVerification: {
@@ -115,6 +129,8 @@ export const auth = betterAuth({
         subject: "आलम वस्त्रालय — अपने ईमेल पते की पुष्टि करें (Verify Your Email)",
         html: htmlBody,
         text: `Verify your email by opening: ${url}`,
+        type: "GENERAL",
+        name: user.name,
       });
     },
   },
@@ -152,6 +168,8 @@ export const auth = betterAuth({
         subject: "आलम वस्त्रालय — पासवर्ड रीसेट लिंक (Password Reset Request)",
         html: htmlBody,
         text: `Reset your password at: ${url}`,
+        type: "FORGOT_PASSWORD",
+        name: user.name,
       });
     },
   },
@@ -192,6 +210,7 @@ export const auth = betterAuth({
           subject: "आलम वस्त्रालय — आपका 1-क्लिक मैजिक लॉगिन लिंक (5 Min Expiry)",
           html: htmlBody,
           text: `Log in using this magic link (valid for 5 minutes): ${url}`,
+          type: "GENERAL",
         });
       },
     }),
@@ -238,6 +257,8 @@ export const auth = betterAuth({
           subject,
           html: htmlBody,
           text: `Your Aalm Vastralay verification code is: ${otp}. Valid for 10 minutes.`,
+          type: type === "forget-password" ? "FORGOT_PASSWORD" : "GENERAL",
+          otp,
         });
       },
     }),

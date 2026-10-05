@@ -85,27 +85,27 @@ export default async function OrderTaxInvoicePage({ params }: { params: Promise<
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 py-6 px-4 print:bg-white print:p-0">
+    <div className="min-h-screen bg-slate-100 dark:bg-stone-950 py-6 px-4 print:bg-white print:p-0">
       {/* Top action toolbar - hidden when printing */}
       <div className="mx-auto max-w-4xl mb-6 flex flex-wrap items-center justify-between gap-4 print:hidden">
         <Link
           href={`/orders/${orderRow.order.id}`}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-maroon-800 hover:text-maroon-900 transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-maroon-800 dark:text-rose-300 hover:text-maroon-900 dark:hover:text-rose-200 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Order Details</span>
         </Link>
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500">
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-stone-400">
+            <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <span>Statutory Rule 46 Compliant</span>
           </div>
           <InvoicePrintButton />
         </div>
       </div>
 
-      {/* Invoice Document Box */}
-      <div className="mx-auto max-w-4xl rounded-2xl border border-cream-200 bg-white p-6 shadow-sm sm:p-10 print:max-w-none print:border-none print:p-0 print:shadow-none">
+      {/* Invoice Document Box - Always renders as high-contrast official paper bill */}
+      <div className="mx-auto max-w-4xl rounded-2xl border border-stone-200 bg-white text-slate-900 p-6 shadow-md sm:p-10 print:max-w-none print:border-none print:p-0 print:shadow-none">
         {/* Header */}
         <div className="border-b-2 border-maroon-900 pb-6 print:pb-4">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">

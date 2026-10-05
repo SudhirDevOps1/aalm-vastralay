@@ -1,12 +1,14 @@
 "use client";
 import { preventDoubleSubmit } from "@/components/ui/Submit";
 import { useActionState, useMemo, useState } from "react";
-import { ImagePlus, Loader2, Plus, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
 import { saveProduct } from "@/actions/seller";
 import SubmitButton from "@/components/SubmitButton";
 import type { Product, ProductVariant } from "@/db/schema";
 import { resolveThumbnail, sanitizeImageUrl } from "@/lib/media-resolver";
+import { canonicalizeImageUrl } from "@/lib/image-resolver";
 import GenerateDescriptionButton from "@/components/admin/GenerateDescriptionButton";
+import UniversalMediaPicker, { type MediaSelectResult } from "@/components/media/UniversalMediaPicker";
 
 type CategoryOption = { id: string; name: string; parentName: string | null };
 type VariantRow = { key: string; id?: string; size: string; color: string; stock: number; priceAdjustment: number; sku: string };
@@ -75,29 +77,31 @@ export default function ProductForm({ categories, product }: { categories: Categ
     setVariants((rows) => [...rows, ...sizes.filter((s) => !rows.some((r) => r.size === s && !r.color)).map((s) => ({ key: nextKey(), size: s, color: "", stock: 5, priceAdjustment: 0, sku: "" }))]);
   }
 
-  async function uploadLocal(files: FileList | null) {
+  async function uploadFiles(files: FileList | null) {
     if (!files || !files.length) return;
     setUploading(true);
     setUploadError(null);
     try {
       const uploaded: string[] = [];
       for (const file of Array.from(files).slice(0, 6)) {
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          const fr = new FileReader();
-          fr.onload = () => resolve(fr.result as string);
-          fr.onerror = () => reject(fr.error);
-          fr.readAsDataURL(file);
-        });
-        const res = await fetch("/api/uploads/product", {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("folder", "products");
+
+        const res = await fetch("/api/media/upload", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data: dataUrl, mime: file.type }),
+          body: fd,
         });
-        const json = (await res.json()) as { url?: string; error?: string };
-        if (!res.ok || !json.url) throw new Error(json.error ?? "Upload failed");
-        uploaded.push(json.url);
+
+        const json = (await res.json()) as { success?: boolean; asset?: { servableUrl?: string; fileName?: string }; error?: string };
+        if (!res.ok || !json.success || !json.asset) {
+          throw new Error(json.error ?? "Failed to upload to media storage.");
+        }
+
+        const storedUrl = json.asset.fileName ? `b2:${json.asset.fileName}` : (json.asset.servableUrl || "");
+        if (storedUrl) uploaded.push(storedUrl);
       }
-      setImages((prev) => [...uploaded, prev].filter(Boolean).join("\n"));
+      setImages((prev) => [...uploaded, ...prev.split(/\r?\n|,/).map((s) => s.trim())].filter(Boolean).join("\n"));
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -105,38 +109,21 @@ export default function ProductForm({ categories, product }: { categories: Categ
     }
   }
 
-  async function handleUpload(files: FileList | null) {
-    if (!files || !files.length) return;
-    // Zero-config path: local disk upload (works on Node hosts, CI, local dev).
-    if (!canUpload) return uploadLocal(files);
-    setUploading(true);
-    setUploadError(null);
-    try {
-      const uploaded: string[] = [];
-      for (const file of Array.from(files).slice(0, 6)) {
-        const authRes = await fetch("/api/upload/auth");
-        if (!authRes.ok) throw new Error("Upload auth failed");
-        const auth = (await authRes.json()) as { token: string; expire: number; signature: string };
-        const fd = new FormData();
-        fd.append("file", file);
-        fd.append("fileName", file.name);
-        fd.append("publicKey", ikPublicKey!);
-        fd.append("signature", auth.signature);
-        fd.append("expire", String(auth.expire));
-        fd.append("token", auth.token);
-        fd.append("folder", "/products");
-        fd.append("useUniqueFileName", "true");
-        const res = await fetch("https://upload.imagekit.io/api/v1/files/upload", { method: "POST", body: fd });
-        if (!res.ok) throw new Error("ImageKit upload failed");
-        const json = (await res.json()) as { filePath: string };
-        uploaded.push(`ik:${json.filePath.replace(/^\//, "")}`);
-      }
-      setImages((prev) => [prev.trim(), ...uploaded].filter(Boolean).join("\n"));
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      setUploading(false);
-    }
+  function handleMediaSelect(result: MediaSelectResult) {
+    if (!result?.url) return;
+    const finalUrl = result.fileName ? `b2:${result.fileName}` : canonicalizeImageUrl(result.url) || result.url;
+    setImages((prev) => {
+      const existing = prev.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean);
+      if (existing.includes(finalUrl)) return prev;
+      return [finalUrl, ...existing].join("\n");
+    });
+  }
+
+  function removeImage(indexToRemove: number) {
+    setImages((prev) => {
+      const list = prev.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean);
+      return list.filter((_, idx) => idx !== indexToRemove).join("\n");
+    });
   }
 
   return (
@@ -326,42 +313,107 @@ export default function ProductForm({ categories, product }: { categories: Categ
       </div>
 
       <aside className="space-y-6">
-        <section className="card space-y-3 p-5">
-          <h2 className="font-semibold text-maroon-900">Images</h2>
-          {canUpload ? (
-            <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-cream-300 p-5 text-center text-sm text-slate-600 hover:border-maroon-400">
-              {uploading ? <Loader2 className="h-6 w-6 animate-spin text-maroon-700" /> : <ImagePlus className="h-6 w-6 text-maroon-700" />}
-              <span>{uploading ? "Uploading to ImageKit…" : "Click to upload (max 6)"}</span>
-              <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleUpload(e.target.files)} disabled={uploading} />
-            </label>
-          ) : (
-            <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-cream-300 p-5 text-center text-sm text-slate-600 hover:border-maroon-400">
-              {uploading ? <Loader2 className="h-6 w-6 animate-spin text-maroon-700" /> : <ImagePlus className="h-6 w-6 text-maroon-700" />}
-              <span>{uploading ? "Uploading…" : "Click to upload photos (max 6)"}</span>
-              <span className="text-[11px] text-slate-400">Stored on your server · JPG, PNG, WebP, AVIF</span>
-              <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => uploadLocal(e.target.files)} disabled={uploading} />
-            </label>
-          )}
-          {uploadError && <p className="text-xs text-rose-700">{uploadError}</p>}
-          <textarea name="images" className="input min-h-28 font-mono text-xs" value={images} onChange={(e) => setImages(e.target.value)} placeholder={"https://example.com/photo-1.jpg\nik:products/photo-2.jpg\nb2:orders/photo-3.jpg"} />
+        <section className="card space-y-4 p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-maroon-900 dark:text-stone-100">Product Images</h2>
+            <span className="text-xs text-slate-500 dark:text-stone-400">Up to 6 images</span>
+          </div>
+
+          {/* Drag & Drop Upload Zone */}
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-maroon-200 dark:border-stone-700 bg-cream-50/50 dark:bg-stone-900/40 p-5 text-center text-sm text-slate-600 dark:text-stone-300 hover:border-maroon-500 dark:hover:border-gold-400 hover:bg-cream-100/60 dark:hover:bg-stone-800/60 transition-colors">
+            {uploading ? (
+              <Loader2 className="h-7 w-7 animate-spin text-maroon-700 dark:text-gold-400" />
+            ) : (
+              <ImagePlus className="h-7 w-7 text-maroon-700 dark:text-gold-400" />
+            )}
+            <span className="font-medium text-slate-800 dark:text-stone-200">
+              {uploading ? "Uploading to Backblaze B2…" : "Click or drag photos here (max 6)"}
+            </span>
+            <span className="text-[11px] text-slate-400 dark:text-stone-500">
+              High-speed B2 Cold Storage · JPG, PNG, WebP, AVIF (Max 10MB)
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => uploadFiles(e.target.files)}
+              disabled={uploading}
+            />
+          </label>
+
+          {/* Universal Media Picker Button */}
+          <div className="flex items-center justify-between gap-2 pt-1 border-t border-cream-200 dark:border-stone-800">
+            <UniversalMediaPicker
+              folder="products"
+              buttonLabel="B2 Library / Web Link"
+              onSelect={handleMediaSelect}
+              className="w-full text-xs font-semibold"
+            />
+          </div>
+
+          {uploadError && <p className="text-xs text-rose-700 dark:text-rose-400">{uploadError}</p>}
+
+          {/* Thumbnail Gallery with Delete Actions */}
           {safeThumbnails.length > 0 && (
-            <div className="grid grid-cols-4 gap-2">
-              {safeThumbnails.map((safeSrc, i) => (
-                <div
-                  key={`${safeSrc}-${i}`}
-                  role="img"
-                  aria-label={`Product photo ${i + 1}`}
-                  className="aspect-[3/4] w-full rounded-lg bg-[color:var(--surface-2)] bg-cover bg-center border border-[color:var(--border)]"
-                  style={{ backgroundImage: `url("${safeSrc}")` }}
-                />
-              ))}
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium text-slate-600 dark:text-stone-400">Current Photos (First image is Cover):</p>
+              <div className="grid grid-cols-3 gap-2">
+                {safeThumbnails.map((safeSrc, i) => (
+                  <div
+                    key={`${safeSrc}-${i}`}
+                    className="group relative aspect-[3/4] w-full overflow-hidden rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 shadow-xs"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={safeSrc}
+                      alt={`Product photo ${i + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                    {i === 0 && (
+                      <span className="absolute top-1 left-1 rounded bg-maroon-900/80 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white tracking-wide">
+                        Cover
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-rose-600/90 text-white shadow-sm opacity-90 hover:opacity-100 active:scale-95 transition"
+                      aria-label="Remove photo"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
+
+          <div>
+            <label className="label text-xs" htmlFor="images">
+              Raw Image URLs (B2 keys, Google Drive, or Web Links):
+            </label>
+            <textarea
+              id="images"
+              name="images"
+              className="input min-h-24 font-mono text-xs"
+              value={images}
+              onChange={(e) => setImages(e.target.value)}
+              placeholder={"b2:products/photo-1.webp\nhttps://drive.google.com/file/d/...\nhttps://example.com/saree.jpg"}
+            />
+          </div>
+
           <div>
             <label className="label" htmlFor="videoUrl">
-              Video (YouTube unlisted link or ImageKit path)
+              Video (YouTube link or video URL)
             </label>
-            <input id="videoUrl" name="videoUrl" className="input" defaultValue={product?.videoUrl ?? ""} placeholder="https://youtu.be/… or ik:videos/lehenga.mp4" />
+            <input
+              id="videoUrl"
+              name="videoUrl"
+              className="input"
+              defaultValue={product?.videoUrl ?? ""}
+              placeholder="https://youtu.be/… or https://example.com/video.mp4"
+            />
           </div>
         </section>
 

@@ -25,6 +25,11 @@ export type SendEmailOptions = {
   subject: string;
   html: string;
   text?: string;
+  type?: "FORGOT_PASSWORD" | "ORDER_CONFIRMATION" | "ORDER_DISPATCHED" | "UPI_VERIFIED" | "SELLER_WELCOME" | "RETURN_REQUESTED" | "FESTIVAL_OFFER" | "COUPON_OFFER" | "STOCK_DELIVERY_ALERT" | "GENERAL";
+  name?: string | null;
+  otp?: string;
+  orderId?: string;
+  amount?: number;
 };
 
 export type SendEmailResult = {
@@ -119,26 +124,35 @@ async function sendViaSmtp(
  */
 async function sendViaGas(
   webhookUrl: string,
-  { to, subject, html, text }: SendEmailOptions
+  options: SendEmailOptions
 ): Promise<{ ok: boolean; error?: string }> {
   const token = getRequiredEnv("GAS_SECRET_TOKEN");
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 9000);
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    const emailType = options.type || (options.otp ? "FORGOT_PASSWORD" : "GENERAL");
 
     const payload = {
-      to: to.trim().toLowerCase(),
-      subject,
-      html,
-      text: text || subject,
+      to: options.to.trim().toLowerCase(),
+      subject: options.subject,
+      html: options.html,
+      text: options.text || options.subject,
       token,
+      type: emailType,
+      otp: options.otp || "",
+      name: options.name || "",
+      orderId: options.orderId || "",
+      amount: options.amount || 0,
+      body: options.text || options.subject,
     };
 
+    // Note: Google Apps Script Web Apps handle text/plain or application/json payloads smoothly
     const res = await fetch(webhookUrl, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "text/plain;charset=utf-8",
       },
       body: JSON.stringify(payload),
       signal: controller.signal,
@@ -148,6 +162,16 @@ async function sendViaGas(
 
     if (!res.ok) {
       return { ok: false, error: `GAS returned HTTP ${res.status}` };
+    }
+
+    const text = await res.text().catch(() => "");
+    try {
+      const data = JSON.parse(text) as { status?: string; message?: string };
+      if (data.status === "error") {
+        return { ok: false, error: data.message || "GAS execution returned error status" };
+      }
+    } catch {
+      // GAS often responds with an HTML redirect or plain success string
     }
 
     return { ok: true };
@@ -161,29 +185,29 @@ async function sendViaGas(
 /**
  * Master Hybrid Dispatcher.
  * Automatically tries Gmail SMTP first (500 emails/day), then gracefully falls back
- * to Google Apps Script (100 emails/day) if SMTP is unavailable or exhausts quota.
+ * to Google Apps Script (100-450 emails/day) if SMTP is unavailable or exhausts quota.
  */
-export async function sendEmail({ to, subject, html, text }: SendEmailOptions): Promise<SendEmailResult> {
-  const cleanTo = to.trim().toLowerCase();
+export async function sendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
+  const cleanTo = options.to.trim().toLowerCase();
 
   // 1. Primary Engine: Try Direct Gmail SMTP (500 emails/day)
   const smtp = getSmtpTransporter();
   if (smtp) {
-    const smtpRes = await sendViaSmtp(smtp, { to: cleanTo, subject, html, text });
+    const smtpRes = await sendViaSmtp(smtp, { ...options, to: cleanTo });
     if (smtpRes.ok) {
       return { ok: true, delivered: true, provider: "smtp" };
     }
     console.warn(`[email] SMTP primary failed (${smtpRes.error}). Initiating automatic fallback to GAS...`);
   }
 
-  // 2. Secondary Engine: Try Google Apps Script Webhook (100 emails/day)
+  // 2. Secondary Engine: Try Google Apps Script Webhook (100-450 emails/day)
   const gasWebhookUrl =
-    process.env.GAS_WEBHOOK_URL?.trim() ||
     process.env.GAS_EMAIL_URL?.trim() ||
+    process.env.GAS_WEBHOOK_URL?.trim() ||
     process.env.QUIETMAIL_API_URL?.trim();
 
   if (gasWebhookUrl) {
-    const gasRes = await sendViaGas(gasWebhookUrl, { to: cleanTo, subject, html, text });
+    const gasRes = await sendViaGas(gasWebhookUrl, { ...options, to: cleanTo });
     if (gasRes.ok) {
       return { ok: true, delivered: true, provider: "gas" };
     }
@@ -193,7 +217,7 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions): 
 
   // 3. Fallback: Simulation mode for local dev / offline testing
   if (process.env.NODE_ENV !== "production") {
-    console.log(`[EMAIL SIMULATED - No SMTP or GAS configured] To: ${cleanTo} | Subject: "${subject}"`);
+    console.log(`[EMAIL SIMULATED - No SMTP or GAS configured] To: ${cleanTo} | Subject: "${options.subject}"`);
   }
   return { ok: true, delivered: false, provider: "simulated" };
 }

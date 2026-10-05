@@ -47,8 +47,22 @@ const TTL_MS = 60_000;
  */
 export async function invalidateSettings() {
   snapshot = null;
-  const { updateTag } = await import("next/cache");
-  updateTag(SITE_SETTINGS_TAG);
+  const { updateTag, revalidateTag, refresh } = await import("next/cache");
+  try {
+    updateTag(SITE_SETTINGS_TAG);
+  } catch {
+    /* ignore */
+  }
+  try {
+    revalidateTag(SITE_SETTINGS_TAG, "max");
+  } catch {
+    /* ignore */
+  }
+  try {
+    if (typeof refresh === "function") refresh();
+  } catch {
+    /* ignore */
+  }
 }
 
 async function readAll(): Promise<SettingsMap> {

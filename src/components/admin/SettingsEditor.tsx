@@ -29,7 +29,14 @@ export default function SettingsEditor({
 }) {
   const [state, action] = useActionState(updateSettings, null);
   const [live, setLive] = useState<Record<string, string>>(values);
+  const [prevValues, setPrevValues] = useState<Record<string, string>>(values);
   const [savingArchetype, setSavingArchetype] = useState(false);
+
+  if (prevValues !== values) {
+    setPrevValues(values);
+    setLive(values);
+  }
+
   const groupFields = useMemo(() => fields.filter((f) => f.group === activeGroup), [fields, activeGroup]);
   const isPreviewable = ["brand", "theme", "home", "security"].includes(activeGroup);
 

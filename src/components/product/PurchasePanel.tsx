@@ -11,15 +11,19 @@ export type VariantOption = { id: string; size: string | null; color: string | n
 export default function PurchasePanel({
   productId,
   price,
+  mrp,
   stock,
   variants,
   initialWishlisted,
+  freeShippingAbove = 999,
 }: {
   productId: string;
   price: number;
+  mrp?: number;
   stock: number;
   variants: VariantOption[];
   initialWishlisted: boolean;
+  freeShippingAbove?: number;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -41,6 +45,8 @@ export default function PurchasePanel({
   const needsSelection = hasVariants && ((sizes.length > 0 && !size) || (colors.length > 0 && !color));
   const available = hasVariants ? (selected?.stock ?? 0) : stock;
   const effectivePrice = price + (selected?.priceAdjustment ?? 0);
+  const effectiveMrp = mrp && mrp > price ? mrp + (selected?.priceAdjustment ?? 0) : mrp ?? 0;
+  const effectiveDiscount = effectiveMrp > effectivePrice ? Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100) : 0;
 
   const sizeAvailable = (s: string) => variants.some((v) => v.size === s && (colors.length && color ? v.color === color : true) && v.stock > 0);
   const colorAvailable = (c: string) => variants.some((v) => v.color === c && (sizes.length && size ? v.size === size : true) && v.stock > 0);
@@ -91,10 +97,35 @@ export default function PurchasePanel({
 
   return (
     <div className="space-y-5">
-      {selected && selected.priceAdjustment !== 0 && (
-        <p className="text-sm text-slate-700 dark:text-stone-300">
-          Price for this option: <span className="font-bold text-maroon-900 dark:text-rose-300">{formatINR(effectivePrice)}</span>
+      {/* Dynamic Price Header synced live to variant selection */}
+      <div>
+        <div className="flex flex-wrap items-baseline gap-3">
+          <span className="text-3xl font-extrabold text-maroon-900 dark:text-rose-300">
+            {formatINR(effectivePrice)}
+          </span>
+          {effectiveMrp > effectivePrice && (
+            <>
+              <span className="text-lg text-slate-400 dark:text-stone-500 line-through">
+                {formatINR(effectiveMrp)}
+              </span>
+              <span className="rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                {effectiveDiscount}% off
+              </span>
+            </>
+          )}
+        </div>
+        <p className="mt-1 text-xs text-slate-600 dark:text-stone-400 font-medium">
+          Inclusive of all taxes · {effectivePrice >= freeShippingAbove ? "Free delivery" : `${formatINR(49)} delivery, free above ${formatINR(freeShippingAbove)}`}
         </p>
+      </div>
+
+      {selected && selected.priceAdjustment !== 0 && (
+        <div className="inline-flex items-center gap-1.5 rounded-lg bg-cream-100/80 dark:bg-stone-800/80 border border-cream-300 dark:border-stone-700 px-3 py-1 text-xs text-slate-700 dark:text-stone-300">
+          <span>Option Selected:</span>
+          <span className="font-bold text-maroon-900 dark:text-gold-400">
+            {size ? `Size ${size}` : ""} {color ? `· Colour ${color}` : ""} ({selected.priceAdjustment > 0 ? `+${formatINR(selected.priceAdjustment)}` : formatINR(selected.priceAdjustment)})
+          </span>
+        </div>
       )}
 
       {sizes.length > 0 && (

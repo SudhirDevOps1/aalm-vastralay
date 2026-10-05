@@ -14,7 +14,7 @@ import { aiCache } from "@/db/schema";
  * - Deterministic Fallbacks: Gracefully generates rich content even if keys are unset or quotas exhausted.
  */
 
-export type AiProvider = "gemini" | "groq" | "fallback";
+export type AiProvider = "gemini" | "groq" | "mistral" | "fallback";
 
 export type AiGenerationOptions = {
   systemPrompt?: string;
@@ -23,6 +23,8 @@ export type AiGenerationOptions = {
   maxTokens?: number;
   jsonMode?: boolean;
   feature: "description" | "search" | "recommendation";
+  preferredProvider?: "gemini" | "groq" | "mistral" | "auto";
+  model?: string;
 };
 
 // In-memory LRU cache for ultra-fast deduplication (lasts lifetime of server instance)
@@ -208,7 +210,8 @@ async function callGroq(options: AiGenerationOptions): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) throw new Error("GROQ_API_KEY is not configured.");
 
-  const models = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"];
+  const customModel = options.model || process.env.GROQ_MODEL;
+  const models = customModel ? [customModel, "llama-3.3-70b-versatile", "llama-3.1-8b-instant"] : ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"];
   let lastError: Error | null = null;
 
   for (const model of models) {
@@ -220,7 +223,7 @@ async function callGroq(options: AiGenerationOptions): Promise<string> {
       ];
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8_000);
+      const timeoutId = setTimeout(() => controller.abort(), 9_000);
 
       const res = await fetch(url, {
         method: "POST",
@@ -262,11 +265,69 @@ async function callGroq(options: AiGenerationOptions): Promise<string> {
 }
 
 /**
+ * Call Mistral AI with mistral-small-latest or mistral-large-latest.
+ */
+async function callMistral(options: AiGenerationOptions): Promise<string> {
+  const apiKey = process.env.MISTRAL_API_KEY;
+  if (!apiKey) throw new Error("MISTRAL_API_KEY is not configured.");
+
+  const customModel = options.model || process.env.MISTRAL_MODEL;
+  const models = customModel ? [customModel, "mistral-small-latest", "open-mistral-nemo"] : ["mistral-small-latest", "open-mistral-nemo", "mistral-large-latest"];
+  let lastError: Error | null = null;
+
+  for (const model of models) {
+    try {
+      const url = "https://api.mistral.ai/v1/chat/completions";
+      const messages = [
+        ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
+        { role: "user", content: options.userPrompt },
+      ];
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10_000);
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: options.temperature ?? 0.35,
+          max_tokens: options.maxTokens ?? 1024,
+          ...(options.jsonMode ? { response_format: { type: "json_object" } } : {}),
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Mistral ${model} HTTP ${res.status}: ${errText}`);
+      }
+
+      const json = (await res.json()) as {
+        choices?: { message?: { content?: string } }[];
+      };
+
+      const text = json.choices?.[0]?.message?.content;
+      if (!text) throw new Error(`Empty response from Mistral ${model}`);
+
+      return text;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+    }
+  }
+
+  throw lastError ?? new Error("Mistral invocation failed");
+}
+
+/**
  * Unified Free AI inference engine with automatic multi-tier fallback.
- * Strategy:
- * - Feature 1 (Description): Primary Gemini -> Fallback Groq
- * - Feature 2 (Recommendations): Primary Groq -> Fallback Gemini
- * - Feature 3 (Smart Search): Primary Gemini -> Fallback Groq
+ * Automatically tries available keys (Gemini, Groq, Mistral) in order of preference.
  */
 export async function executeAiCompletion(
   options: AiGenerationOptions
@@ -279,26 +340,48 @@ export async function executeAiCompletion(
     return { text: cached, provider: "fallback", cached: true };
   }
 
-  // Determine provider order based on task requirements
-  const preferGroq = options.feature === "recommendation";
-  const primaryFn = preferGroq ? callGroq : callGemini;
-  const secondaryFn = preferGroq ? callGemini : callGroq;
-  const primaryProvider: AiProvider = preferGroq ? "groq" : "gemini";
-  const secondaryProvider: AiProvider = preferGroq ? "gemini" : "groq";
+  // Determine provider candidates based on configured API keys
+  const candidates: { provider: AiProvider; fn: (opts: AiGenerationOptions) => Promise<string> }[] = [];
 
-  try {
-    const text = await primaryFn(options);
-    await setCachedAiResponse(cacheKey, options.feature, text);
-    return { text, provider: primaryProvider, cached: false };
-  } catch (primaryErr) {
-    console.warn(`[AI Engine] ${primaryProvider} failed (${primaryErr}), falling back to ${secondaryProvider}...`);
+  const hasGemini = Boolean(process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY);
+  const hasGroq = Boolean(process.env.GROQ_API_KEY);
+  const hasMistral = Boolean(process.env.MISTRAL_API_KEY);
+
+  const preferred = options.preferredProvider || (process.env.AI_PROVIDER as "gemini" | "groq" | "mistral" | undefined) || "auto";
+
+  if (preferred === "mistral" && hasMistral) {
+    candidates.push({ provider: "mistral", fn: callMistral });
+  } else if (preferred === "groq" && hasGroq) {
+    candidates.push({ provider: "groq", fn: callGroq });
+  } else if (preferred === "gemini" && hasGemini) {
+    candidates.push({ provider: "gemini", fn: callGemini });
+  }
+
+  // Add remaining available providers as automatic fallbacks
+  if (hasGemini && !candidates.some((c) => c.provider === "gemini")) {
+    candidates.push({ provider: "gemini", fn: callGemini });
+  }
+  if (hasGroq && !candidates.some((c) => c.provider === "groq")) {
+    candidates.push({ provider: "groq", fn: callGroq });
+  }
+  if (hasMistral && !candidates.some((c) => c.provider === "mistral")) {
+    candidates.push({ provider: "mistral", fn: callMistral });
+  }
+
+  // If no API keys configured, try Gemini as default (which throws clear error to trigger deterministic fallback)
+  if (candidates.length === 0) {
+    candidates.push({ provider: "gemini", fn: callGemini });
+  }
+
+  for (const { provider, fn } of candidates) {
     try {
-      const text = await secondaryFn(options);
+      const text = await fn(options);
       await setCachedAiResponse(cacheKey, options.feature, text);
-      return { text, provider: secondaryProvider, cached: false };
-    } catch (secondaryErr) {
-      console.warn(`[AI Engine] ${secondaryProvider} also failed (${secondaryErr}). Using deterministic algorithm.`);
-      throw secondaryErr;
+      return { text, provider, cached: false };
+    } catch (err) {
+      console.warn(`[AI Engine] ${provider} failed (${err}). Trying next fallback...`);
     }
   }
+
+  throw new Error("All configured AI providers failed.");
 }

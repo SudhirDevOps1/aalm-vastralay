@@ -51,16 +51,16 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <Link href="/orders" className="text-sm font-semibold text-maroon-700 hover:underline">
+      <Link href="/orders" className="text-sm font-semibold text-maroon-700 dark:text-gold-400 hover:underline">
         ← All orders
       </Link>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-maroon-900">Order {order.orderNumber}</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="font-display text-2xl font-semibold text-maroon-900 dark:text-stone-50">Order {order.orderNumber}</h1>
+          <p className="text-sm text-slate-500 dark:text-stone-400">
             Placed {formatDate(order.createdAt)} · Sold by{" "}
             {store ? (
-              <Link href={`/stores/${store.slug}`} className="text-maroon-700 hover:underline">
+              <Link href={`/stores/${store.slug}`} className="text-maroon-700 dark:text-gold-400 hover:underline">
                 {store.storeName}
               </Link>
             ) : (
@@ -71,9 +71,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Link
             href={`/orders/${order.id}/invoice`}
-            className="inline-flex items-center gap-1.5 rounded-full border border-maroon-300 bg-cream-50 px-3 py-1.5 text-xs font-semibold text-maroon-800 hover:bg-maroon-100 hover:border-maroon-400 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-full border border-maroon-300 dark:border-stone-700 bg-cream-50 dark:bg-stone-800 px-3 py-1.5 text-xs font-semibold text-maroon-800 dark:text-stone-100 hover:bg-maroon-100 dark:hover:bg-stone-700 hover:border-maroon-400 dark:hover:border-stone-600 transition-colors shadow-xs"
           >
-            <FileText className="h-3.5 w-3.5 text-maroon-700" />
+            <FileText className="h-3.5 w-3.5 text-maroon-700 dark:text-gold-400" />
             <span>Tax Invoice / कर इनवॉइस</span>
           </Link>
           <WhatsAppOrderButton
@@ -99,66 +99,66 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       </div>
 
       <div className="mt-6 grid gap-6 md:grid-cols-[1fr_300px]">
-        <section className="card divide-y divide-cream-200">
+        <section className="card divide-y divide-cream-200 dark:divide-stone-800">
           {items.map(({ item, product, variant }) => (
             <div key={item.id} className="flex gap-4 p-4">
-              <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-cream-100">
+              <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-cream-100 dark:bg-stone-800">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={resolveThumbnail(product?.images?.[0])} alt="" className="h-full w-full object-cover" />
               </div>
               <div className="flex-1 text-sm">
                 {product ? (
-                  <Link href={`/products/${product.slug}`} className="font-medium text-slate-800 hover:text-maroon-800">
+                  <Link href={`/products/${product.slug}`} className="font-medium text-slate-900 dark:text-stone-100 hover:text-maroon-800 dark:hover:text-gold-300">
                     {product.title}
                   </Link>
                 ) : (
-                  <p className="font-medium text-slate-800">Product unavailable</p>
+                  <p className="font-medium text-slate-800 dark:text-stone-200">Product unavailable</p>
                 )}
                 {variant && (
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-stone-400">
                     {variant.size && `Size: ${variant.size}`} {variant.color && `· Colour: ${variant.color}`}
                   </p>
                 )}
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-slate-500 dark:text-stone-400">
                   {formatINR(item.price)} × {item.quantity}
                 </p>
                 {order.status === "delivered" && product && (
-                  <Link href={`/products/${product.slug}#reviews`} className="mt-1 inline-block text-xs font-semibold text-maroon-700 hover:underline">
+                  <Link href={`/products/${product.slug}#reviews`} className="mt-1 inline-block text-xs font-semibold text-maroon-700 dark:text-gold-400 hover:underline">
                     Write a review
                   </Link>
                 )}
               </div>
-              <p className="font-semibold text-slate-900">{formatINR(item.total)}</p>
+              <p className="font-semibold text-slate-900 dark:text-stone-100">{formatINR(item.total)}</p>
             </div>
           ))}
           <dl className="space-y-1.5 p-4 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-600">Subtotal</dt>
-              <dd>{formatINR(order.subtotal)}</dd>
+              <dt className="text-slate-600 dark:text-stone-400">Subtotal</dt>
+              <dd className="text-slate-900 dark:text-stone-200">{formatINR(order.subtotal)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-600">Delivery</dt>
-              <dd>{order.shippingFee === 0 ? "Free" : formatINR(order.shippingFee)}</dd>
+              <dt className="text-slate-600 dark:text-stone-400">Delivery</dt>
+              <dd className="text-slate-900 dark:text-stone-200">{order.shippingFee === 0 ? "Free" : formatINR(order.shippingFee)}</dd>
             </div>
             {order.subtotal + order.shippingFee > order.total && (
-              <div className="flex justify-between text-emerald-700">
+              <div className="flex justify-between text-emerald-700 dark:text-emerald-400">
                 <dt>Coupon discount</dt>
                 <dd>-{formatINR(order.subtotal + order.shippingFee - order.total)}</dd>
               </div>
             )}
-            <div className="flex justify-between border-t border-cream-200 pt-2 text-base font-bold text-maroon-900">
+            <div className="flex justify-between border-t border-cream-200 dark:border-stone-800 pt-2 text-base font-bold text-maroon-900 dark:text-rose-300">
               <dt>Total</dt>
               <dd>{formatINR(order.total)}</dd>
             </div>
-            <p className="pt-1 text-xs text-slate-500">
-              Payment: <span className="uppercase">{order.paymentMethod}</span> · {order.paymentStatus}
+            <p className="pt-1 text-xs text-slate-500 dark:text-stone-400">
+              Payment: <span className="uppercase text-slate-700 dark:text-stone-300">{order.paymentMethod}</span> · {order.paymentStatus}
             </p>
-            <div className="pt-3 border-t border-cream-200">
+            <div className="pt-3 border-t border-cream-200 dark:border-stone-800">
               <Link
                 href={`/orders/${order.id}/invoice`}
-                className="flex items-center justify-center gap-2 rounded-xl border border-cream-300 bg-cream-100/70 py-2.5 px-3 text-xs font-semibold text-maroon-900 hover:bg-cream-200 transition-colors shadow-xs"
+                className="flex items-center justify-center gap-2 rounded-xl border border-cream-300 dark:border-stone-700 bg-cream-100/70 dark:bg-stone-800 py-2.5 px-3 text-xs font-semibold text-maroon-900 dark:text-stone-100 hover:bg-cream-200 dark:hover:bg-stone-700 transition-colors shadow-xs"
               >
-                <FileText className="h-4 w-4 text-maroon-800" />
+                <FileText className="h-4 w-4 text-maroon-800 dark:text-gold-400" />
                 <span>Download / Print Tax Invoice (कर इनवॉइस)</span>
               </Link>
             </div>
@@ -167,18 +167,18 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
         <aside className="space-y-4">
           <div className="card p-4 text-sm">
-            <p className="mb-2 flex items-center gap-1.5 font-semibold text-maroon-900">
+            <p className="mb-2 flex items-center gap-1.5 font-semibold text-maroon-900 dark:text-gold-400">
               <MapPin className="h-4 w-4" /> Delivery address
             </p>
-            <p className="font-medium">{addr.fullName}</p>
-            <p className="text-slate-600">
+            <p className="font-medium text-slate-900 dark:text-stone-100">{addr.fullName}</p>
+            <p className="text-slate-600 dark:text-stone-400">
               {addr.addressLine}
               {addr.landmark ? `, ${addr.landmark}` : ""}
             </p>
-            <p className="text-slate-600">
+            <p className="text-slate-600 dark:text-stone-400">
               {addr.city}, {addr.state} – {addr.pincode}
             </p>
-            <p className="mt-1 flex items-center gap-1 text-slate-600">
+            <p className="mt-1 flex items-center gap-1 text-slate-600 dark:text-stone-400">
               <Phone className="h-3 w-3" /> {addr.phone}
             </p>
           </div>
@@ -186,8 +186,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           {(user.role === "admin" || user.role === "seller") && (
             <div className="card p-4 text-sm space-y-3">
               <div>
-                <p className="font-semibold text-slate-800">Logistics & AWB Generation</p>
-                <p className="text-xs text-slate-500">Generate Shiprocket / Delhivery shipping labels</p>
+                <p className="font-semibold text-slate-800 dark:text-stone-200">Logistics & AWB Generation</p>
+                <p className="text-xs text-slate-500 dark:text-stone-400">Generate Shiprocket / Delhivery shipping labels</p>
               </div>
               <div>
                 <GenerateAwbButton
@@ -196,7 +196,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   existingCourier={order.courier}
                 />
               </div>
-              <div className="pt-2 border-t border-slate-100">
+              <div className="pt-2 border-t border-slate-100 dark:border-stone-800">
                 <WhatsAppDispatchButton
                   customerName={addr.fullName}
                   customerPhone={addr.phone}
@@ -211,15 +211,15 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
           {order.notes && (
             <div className="card p-4 text-sm">
-              <p className="font-semibold text-maroon-900">Notes</p>
-              <p className="mt-1 text-slate-600">{order.notes}</p>
+              <p className="font-semibold text-maroon-900 dark:text-gold-400">Notes</p>
+              <p className="mt-1 text-slate-600 dark:text-stone-400">{order.notes}</p>
             </div>
           )}
 
           {canCancel && (
             <form action={cancelOrder} className="card p-4">
               <input type="hidden" name="orderId" value={order.id} />
-              <p className="text-sm text-slate-600">Changed your mind? You can cancel before the order is shipped.</p>
+              <p className="text-sm text-slate-600 dark:text-stone-400">Changed your mind? You can cancel before the order is shipped.</p>
               <SubmitButton variant="outline" className="mt-3 w-full" pendingText="Cancelling…">
                 <XCircle className="h-4 w-4" /> Cancel order
               </SubmitButton>
@@ -229,8 +229,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           {canReturn && (
             <form action={requestReturn} className="card p-4">
               <input type="hidden" name="orderId" value={order.id} />
-              <p className="text-sm font-semibold text-maroon-900">7-day easy return</p>
-              <p className="mt-1 text-xs text-slate-600">Not happy with the fit or quality? Request a return and we&apos;ll arrange a pickup.</p>
+              <p className="text-sm font-semibold text-maroon-900 dark:text-gold-400">7-day easy return</p>
+              <p className="mt-1 text-xs text-slate-600 dark:text-stone-400">Not happy with the fit or quality? Request a return and we&apos;ll arrange a pickup.</p>
               <textarea name="reason" className="input mt-3 min-h-16" placeholder="Reason (optional)" maxLength={300} />
               <SubmitButton variant="outline" className="mt-3 w-full" pendingText="Requesting…">
                 <RotateCcw className="h-4 w-4" /> Request return

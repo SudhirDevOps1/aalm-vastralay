@@ -226,6 +226,25 @@ export const SETTINGS_FIELDS: SettingField[] = [
   { key: "features.sellerHub", group: "features", label: "Seller onboarding & hub", type: "boolean", default: "true" },
   { key: "features.analytics", group: "features", label: "Privacy-friendly analytics", type: "boolean", default: "true" },
   { key: "features.showDemoAccounts", group: "features", label: "Show demo accounts box on sign-in page", type: "boolean", default: "false", help: "Enable only during staging or testing. Keep disabled in live production." },
+
+  /* ---------------- ai & intelligence ---------------- */
+  {
+    key: "ai.provider",
+    group: "features",
+    label: "Default AI provider",
+    type: "select",
+    options: ["auto", "gemini", "groq", "mistral"],
+    default: "auto",
+    help: "Global AI provider for seller product copywriting, search and recommendations. 'auto' selects the best available free tier API key.",
+  },
+  {
+    key: "ai.model",
+    group: "features",
+    label: "AI Model override",
+    type: "text",
+    default: "",
+    help: "Optional model override (e.g. 'gemini-2.5-flash', 'llama-3.3-70b-versatile', or 'mistral-small-latest'). Leave blank for automatic best model.",
+  },
 ];
 
 export const SETTINGS_DEFAULTS: Record<string, string> = Object.fromEntries(SETTINGS_FIELDS.map((f) => [f.key, f.default]));
