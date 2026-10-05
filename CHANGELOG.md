@@ -10,6 +10,23 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.11](https://github.com/SudhirDevOps1/aalm-vastralay/compare/v0.1.10...v0.1.11) (2026-10-05)
+
+
+### ✨ Features
+
+* **ai:** support Mistral, dynamic models and fix GAS email types ([896abc0](https://github.com/SudhirDevOps1/aalm-vastralay/commit/896abc06eca2c3e2f53d653f8785c9cbb30b4435))
+* **analytics:** wire route tracker and typesense search adapter ([56c6f78](https://github.com/SudhirDevOps1/aalm-vastralay/commit/56c6f781b53c970822cd7889fe0a023ced56bab1))
+* **commerce:** add geolocation pincode detection and whatsapp review reminders ([7be612b](https://github.com/SudhirDevOps1/aalm-vastralay/commit/7be612b1be5487904966327e7674fd8a02ccf5f8))
+* **commerce:** dynamic variant price sync, B2 product image upload, and IST formatting ([dd72b3c](https://github.com/SudhirDevOps1/aalm-vastralay/commit/dd72b3c7f2de63c00a71b92fabe3a1d324738053))
+
+
+### 🐛 Bug Fixes
+
+* **auth:** add trustedOrigins and enable B2 drag-drop upload in StoreForm ([661cf81](https://github.com/SudhirDevOps1/aalm-vastralay/commit/661cf81b87b638c23c57f695876e67ce9b23b6f7))
+* **settings:** sync live state and invalidate next cache tags on update ([517aeef](https://github.com/SudhirDevOps1/aalm-vastralay/commit/517aeefec0493b84057c81f7ad2b27f0a7c3e2cf))
+* **theme:** improve dark mode contrast for invoice, order details and push alerts ([be63588](https://github.com/SudhirDevOps1/aalm-vastralay/commit/be635888795f207fab08b7c0de7b4ea5311e4c40))
+
 ## [0.1.10](https://github.com/SudhirDevOps1/aalm-vastralay/compare/v0.1.9...v0.1.10) (2026-09-29)
 
 
