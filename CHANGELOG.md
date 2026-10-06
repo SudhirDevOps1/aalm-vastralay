@@ -10,6 +10,41 @@ All notable changes to **Aalm Vastralay** (आलम वस्त्रालय
 
 ---
 
+## [0.1.12](https://github.com/SudhirDevOps1/aalm-vastralay/compare/v0.1.11...v0.1.12) (2026-10-06)
+
+
+### ✨ Features
+
+* **admin:** add Analytics (DuckDB) navigation tab to AdminSidebarNav ([920fe54](https://github.com/SudhirDevOps1/aalm-vastralay/commit/920fe54c08c7fcd81c9eb219604f9f802a600eb7))
+* **ai:** integrate pollinations vision as tier-2 keyless backup ([c354f4a](https://github.com/SudhirDevOps1/aalm-vastralay/commit/c354f4a6c989a53732c85e2be67970ad89a40668))
+* **reviews:** persist helpful votes in PostgreSQL database ([49b2cec](https://github.com/SudhirDevOps1/aalm-vastralay/commit/49b2cec35536641bcf072a7ee98de2835f765a29))
+* **seller:** add ai variant studio with 1-click b2 upload and auto-insert ([e3ad311](https://github.com/SudhirDevOps1/aalm-vastralay/commit/e3ad3118136011df15d80c18b9f2b70d8ada750e))
+* **seller:** add grounded visual craft extraction and verification breakdown ([1fede72](https://github.com/SudhirDevOps1/aalm-vastralay/commit/1fede723b4adb024bf54876c2cb2a9c3521ac770))
+* **seller:** add multimodal vision ai photo analysis and 1-click auto-fill ([1ab4df5](https://github.com/SudhirDevOps1/aalm-vastralay/commit/1ab4df529763f9cb034abb4b4d2053b4e232dd54))
+
+
+### 🐛 Bug Fixes
+
+* **admin,pow:** harden integrations page queries, fix middleware redirect header, and optimize PoW solve speed ([6e3b114](https://github.com/SudhirDevOps1/aalm-vastralay/commit/6e3b114c3e3d79b6080eda1cb0b28e5a33358608))
+* **media:** enhance resilient image loading, auto-detect scraping, and upload fallbacks ([52ce4a4](https://github.com/SudhirDevOps1/aalm-vastralay/commit/52ce4a4d9f9794408d72ebe342b83b7cbdf88081))
+* **media:** set correct NEXT_PUBLIC_B2_WORKER_URL for production ([fa2441c](https://github.com/SudhirDevOps1/aalm-vastralay/commit/fa2441c656f7e3528c7d1fb3b84185db48cb5c88))
+* **media:** support data uri preview and pass raw images to client gallery ([42c55d9](https://github.com/SudhirDevOps1/aalm-vastralay/commit/42c55d90a1ebe8180a08750a89e103ab2b69d8b0))
+* **products,admin:** fix RSC function leak and add error boundaries ([9f867dc](https://github.com/SudhirDevOps1/aalm-vastralay/commit/9f867dc3d34537a17cf0410b32354a24b8ed8190))
+* **reviews:** format reviewer names, add avatar & photo lightbox ([801325b](https://github.com/SudhirDevOps1/aalm-vastralay/commit/801325b3d903fb75fc48a727c63ae9871247a996))
+* **reviews:** sync ratings across guest cache & mobile layout ([837effb](https://github.com/SudhirDevOps1/aalm-vastralay/commit/837effbea079f77b6dfde7120210b323f5870ac5))
+* **security:** permit same-origin iframe framing and clean branding ([b66a14a](https://github.com/SudhirDevOps1/aalm-vastralay/commit/b66a14ad3b3b28b30b88167891368bd06c6dd985))
+* **security:** resolve CodeQL and ZAP baseline scanning alerts ([c5f0b3f](https://github.com/SudhirDevOps1/aalm-vastralay/commit/c5f0b3f32cd6dc2ea54869df44cee380013a3720))
+* **security:** resolve final CodeQL alert 146 in SmartImage ([8359546](https://github.com/SudhirDevOps1/aalm-vastralay/commit/8359546b6eff9676cdb3a5cb64b83f439060d9c7))
+
+
+### 📖 Documentation
+
+* add comprehensive hindi operations manual and printable pdf ([ba72fa6](https://github.com/SudhirDevOps1/aalm-vastralay/commit/ba72fa6bc8064dc1e12b14f91321a1f3017bdccc))
+* **manual:** expand hindi operations bible to 58 pages & 20 runbooks ([3fca885](https://github.com/SudhirDevOps1/aalm-vastralay/commit/3fca885c98affe1c9d9c0606e512ca8f0931cb34))
+* **manual:** publish 52-page hindi master operations bible & archify showcase ([6ac564e](https://github.com/SudhirDevOps1/aalm-vastralay/commit/6ac564eaa0886476e21af3af3cbd1612b6c5e1b7))
+* **readme:** sync features, error boundaries and test matrix ([bdf40f7](https://github.com/SudhirDevOps1/aalm-vastralay/commit/bdf40f71134f705fc4f9ed5dfff4bd04d27195f4))
+* update .ai and repository architecture records ([160f4f8](https://github.com/SudhirDevOps1/aalm-vastralay/commit/160f4f80b34f730217d5cee014cb280e79322bc9))
+
 ## [0.1.11](https://github.com/SudhirDevOps1/aalm-vastralay/compare/v0.1.10...v0.1.11) (2026-10-05)
 
 
