@@ -1,0 +1,5 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Aalm Vastralay Monogram Icon Black">
+  <circle cx="256" cy="256" r="240" fill="#000000" />
+  <circle cx="256" cy="256" r="222" fill="none" stroke="#FFFFFF" stroke-width="8" />
+  <text x="256" y="340" font-family="Georgia, 'Playfair Display', serif" font-size="240" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="-8">AV</text>
+</svg>

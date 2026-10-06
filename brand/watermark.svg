@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">
+  <g transform="rotate(-22 160 100)" opacity="0.55">
+    <circle cx="160" cy="86" r="26" fill="none" stroke="#D4AF37" stroke-width="1.6"/>
+    <text x="160" y="96" text-anchor="middle" font-family="Georgia, 'Playfair Display', serif" font-size="24" font-weight="bold" fill="#D4AF37">AV</text>
+    <text x="160" y="128" text-anchor="middle" font-family="Georgia, 'Playfair Display', serif" font-size="14" font-weight="700" letter-spacing="2" fill="#D4AF37">AALM VASTRALAY</text>
+  </g>
+</svg>

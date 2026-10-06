@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" width="320" height="64" role="img" aria-label="Aalm Vastralay">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#4A148C"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="28" fill="#4A148C"/>
+  <circle cx="32" cy="32" r="25" fill="none" stroke="#D4AF37" stroke-width="1.4" stroke-opacity="0.9"/>
+  <circle cx="32" cy="32" r="22" fill="none" stroke="#D4AF37" stroke-width="0.8" stroke-dasharray="2, 1.5" stroke-opacity="0.65"/>
+  <text x="32" y="42" text-anchor="middle" font-family="Georgia, 'Playfair Display', serif" font-size="28" font-weight="bold" fill="url(#g)">AV</text>
+  <text x="72" y="30" font-family="Georgia, 'Playfair Display', serif" font-size="22" font-weight="700" fill="#4A148C">AALM <tspan fill="#D4AF37">VASTRALAY</tspan></text>
+  <text x="72" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="600" letter-spacing="1.8" fill="#800020">WEDDING &amp; ETHNIC WEAR · HANDCRAFTED</text>
+</svg>

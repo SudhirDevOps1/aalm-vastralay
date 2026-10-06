@@ -1,0 +1,12 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Aalm Vastralay Monogram Icon">
+  <defs>
+    <linearGradient id="icon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#4A148C" />
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="240" fill="#4A148C" />
+  <circle cx="256" cy="256" r="222" fill="none" stroke="#D4AF37" stroke-width="10" stroke-opacity="0.9" />
+  <circle cx="256" cy="256" r="202" fill="none" stroke="#D4AF37" stroke-width="5" stroke-dasharray="14, 10" stroke-opacity="0.65" />
+  <text x="256" y="340" font-family="Georgia, 'Playfair Display', serif" font-size="240" font-weight="bold" fill="url(#icon-grad)" text-anchor="middle" letter-spacing="-8">AV</text>
+</svg>

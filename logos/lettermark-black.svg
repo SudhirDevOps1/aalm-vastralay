@@ -1,0 +1,14 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Aalm Vastralay Lettermark Black">
+  <text x="256" y="340"
+        font-family="Georgia, 'Playfair Display', serif"
+        font-size="300"
+        font-weight="bold"
+        fill="#000000"
+        text-anchor="middle"
+        letter-spacing="-12">
+    AV
+  </text>
+  <circle cx="256" cy="400" r="6" fill="#000000" />
+  <line x1="160" y1="400" x2="236" y2="400" stroke="#000000" stroke-width="2" />
+  <line x1="276" y1="400" x2="352" y2="400" stroke="#000000" stroke-width="2" />
+</svg>
