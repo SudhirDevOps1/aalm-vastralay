@@ -35,7 +35,7 @@
     "release": "release-please release-pr --config-file=release-please-config.json --manifest-file=.release-please-manifest.json"
   },
   "dependencies": {
-    "@dicebear/core": "^9.4.0",
+    "@dicebear/core": "^10.7.0",
     "@dicebear/lorelei": "^9.0.0",
     "@duckdb/duckdb-wasm": "^1.33.1-dev57.0",
     "@neondatabase/serverless": "^1.1.0",
