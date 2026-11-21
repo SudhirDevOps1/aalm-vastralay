@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createAvatar } from "@dicebear/core";
-import * as lorelei from "@dicebear/lorelei";
+import { Avatar } from "@dicebear/core";
+import definition from "@dicebear/styles/lorelei.json";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,7 @@ export async function GET(req: Request) {
     const seed = sanitizeSeed(rawSeed);
 
     // Generate the SVG synchronously using DiceBear's lorelei collection
-    const avatar = createAvatar(lorelei, {
+    const avatar = new Avatar(definition, {
       seed,
       size: 128,
       backgroundColor: ["f3e5f5", "ede7f6", "fff8e1", "fce4ec"],
