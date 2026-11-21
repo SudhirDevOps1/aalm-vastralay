@@ -66,13 +66,13 @@ export default function FloatingBar({ whatsapp, phone, showThemeToggle }: { what
             target="_blank"
             rel="noopener noreferrer"
             className="group relative flex items-center"
-            aria-label="Chat on WhatsApp"
           >
             <span className="pointer-events-none mr-2 hidden rounded-full border border-emerald-200 dark:border-emerald-800/60 bg-white/95 dark:bg-zinc-900/95 px-2.5 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 shadow-md backdrop-blur-xs transition-opacity duration-300 md:inline-block">
               सहायता चाहिए? WhatsApp करें
             </span>
             <div className="animate-pulse-ring grid h-11 w-11 place-items-center rounded-full bg-emerald-600 text-white shadow-xl hover:bg-emerald-700">
-              <MessageCircle className="h-5 w-5" />
+              <MessageCircle className="h-5 w-5" aria-hidden="true" />
+              <span className="sr-only">Chat on WhatsApp</span>
             </div>
           </a>
         )}

@@ -378,7 +378,7 @@ export default function HeaderNav({
         </button>
 
         {/* Master Brand Identity Logo (Visible in both Light & Dark Mode) */}
-        <Link href="/" className="flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90" aria-label={`${brandName} Home`}>
+        <Link href="/" className="flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90">
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt={brandName} className="h-10 w-auto max-w-[10rem] object-contain" />
@@ -403,6 +403,7 @@ export default function HeaderNav({
               </div>
             </div>
           )}
+          <span className="sr-only">Home</span>
         </Link>
 
         {/* Desktop Search Bar with Live Suggestions */}
