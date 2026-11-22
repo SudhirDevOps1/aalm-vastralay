@@ -70,8 +70,31 @@
 
 ---
 
+## 🆕 What's New in v0.1.12
+
+- 🛡️ **Security hardening** — 42/42 enterprise test suites green, OWASP ZAP baseline clean (0 High), CodeQL + Semgrep passing.
+- ♿ **Accessibility** — WCAG 2.1 AA a11y audit now enforced in CI (Playwright + axe-core), zero critical/serious violations on homepage.
+- 📦 **Dependency refresh** — 31 packages bumped (Next.js 16.4.6, React 19.3.1, Drizzle 0.45.4, better-auth 1.7.21, etc.).
+- 🎨 **DiceBear v10** avatar engine migrated to the new `Avatar`/`Style` API.
+- 🔒 **npm audit** — non-breaking fixes applied (14 → 8 vulnerabilities); remaining 8 require breaking migrations (documented).
+- 🧹 **Repo hygiene** — stale branches & duplicate release PRs cleaned; only `main`, `gh-pages`, and the release-please branch remain.
+
+## 🤔 Why Aalm Vastralay?
+
+| Pain point with typical SaaS stacks | How Aalm Vastralay solves it |
+| :--- | :--- |
+| Recurring SaaS fees (Shopify, BigCommerce) | **$0/month perpetual free tier** — Neon + Vercel + Cloudflare + Backblaze B2 + Gemini/Groq |
+| Fake reviews & bot spam | **Self-hosted PoW bot shield** (10 archetypes, zero third-party trackers) + verified-purchase-only reviews (BIS IS 19000:2022) |
+| Gateway fees eating margins | **0%-fee UPI QR** with UTR verification — saves the standard 2% cut |
+| Heavy cloud storage bills | **Zero-egress CDN** via Cloudflare Bandwidth Alliance + Zero Class C B2 calls |
+| Western checkout clones | **Indian commerce engine** — COD by pincode, GST/HSN split, UPI QR, WhatsApp video-call shopping |
+| Vendor lock-in & black-box SaaS | **100% open source, turnkey template** — fork, white-label, and own your data |
+| Slow mobile on 3G/4G | Skeleton-first rendering, ISR/SSG, CLS ≈ 0, PWA offline sync |
+
 ## 📑 Table of Contents
 
+- [🆕 What's New in v0.1.12](#-whats-new-in-v0112)
+- [🤔 Why Aalm Vastralay?](#-why-aalm-vastralay)
 - [🇮🇳 सम्पूर्ण हिंदी मार्गदर्शिका व PDF](#-सम्पूर्ण-हिंदी-मार्गदर्शिका-व-डिप्लॉयमेंट-मैनुअल-hindi-master-manual--pdf)
 - [🛍️ Storefront Features](#️-storefront-features)
 - [🏪 Seller Hub Features](#-seller-hub-features)
@@ -85,6 +108,8 @@
 - [🔑 Environment Variables](#-environment-variables)
 - [🧪 Verification Suite](#-verification-suite)
 - [☁️ Deployment](#️-deployment)
+- [🤝 Contributing](#-contributing)
+- [📜 License](#-license)
 - [📚 Documentation](#-documentation)
 
 ---
@@ -415,9 +440,39 @@ Runbooks: [Vercel](docs/VERCEL_DEPLOYMENT.md) · [Neon](docs/NEON_POSTGRESQL.md)
 
 ---
 
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR.
+
+- Use **Conventional Commits** (`feat:`, `fix:`, `security:`, …) — release-please uses them for automated versioning.
+- Run the full verification suite before pushing: `npm test && npm run typecheck && npm run lint && npm run build`.
+- All PRs must pass the **Quality Gate** + **Playwright E2E** + **CodeQL** checks (enforced by branch protection).
+
+```bash
+git clone https://github.com/SudhirDevOps1/aalm-vastralay.git
+cd aalm-vastralay
+npm install
+npm run setup:env
+npm run db:auto-migrate
+npm run dev
+```
+
+## 📜 License
+
+This project is released as an **open-source turnkey template**. See the repository for license details — contributions are accepted under the project's existing terms. If you fork it, please retain attribution.
+
+## ⭐ Support the Project
+
+If Aalm Vastralay helped you, please **⭐ star the repo** and share it with other Indian merchants & developers. It helps the project grow and stay free.
+
+---
+
 <div align="center">
 
 **Aalm Vastralay (आलम वस्त्रालय)** &nbsp;•&nbsp; Bihar, India
 *Crafted with precision for Indian Commerce.*
+
+[![GitHub stars](https://img.shields.io/github/stars/SudhirDevOps1/aalm-vastralay?style=social)](https://github.com/SudhirDevOps1/aalm-vastralay/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/SudhirDevOps1/aalm-vastralay?style=social)](https://github.com/SudhirDevOps1/aalm-vastralay/network/members)
 
 </div>
