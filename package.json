@@ -40,7 +40,7 @@
     "@duckdb/duckdb-wasm": "^1.33.1-dev57.0",
     "@neondatabase/serverless": "^1.2.1",
     "@vercel/speed-insights": "^2.1.0",
-    "better-auth": "^1.7.25",
+    "better-auth": "^1.7.26",
     "dotenv": "18.0.10",
     "drizzle-orm": "0.45.4",
     "lucide-react": "^1.75.0",
@@ -77,6 +77,6 @@
     "typescript": "5.9.3",
     "vite": "^8.3.8",
     "vitest": "^5.1.1",
-    "wrangler": "^4.164.0"
+    "wrangler": "^4.165.0"
   }
 }
